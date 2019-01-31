@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">OkHttpDemo</string>
+    <string name="get">Http的get方法</string>
 </resources>
