@@ -16,12 +16,15 @@ import java.util.concurrent.Executors;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Headers;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "RealgodJJ";
+    private static final MediaType MEDIA_TYPE_MARKDOWN = MediaType.parse("text/x-markdown; charset=utf-8");
     private TextView tvGetInformation;
     private final OkHttpClient okHttpClient = new OkHttpClient();
 
@@ -49,8 +52,41 @@ public class MainActivity extends AppCompatActivity {
             case R.id.m_response:
                 response();
                 break;
+
+            case R.id.m_post:
+                post();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    //采用线程池的异步处理
+    private void post() {
+        Request.Builder builder = new Request.Builder();
+        builder.url("");
+        builder.post(RequestBody.create(MEDIA_TYPE_MARKDOWN,
+                "Hello world github/linguist#1 **cool**, and #1!"));
+        final Request request = builder.build();
+        Call call = okHttpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.i(TAG, "Post: Fail to get information!");
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    final String content = response.body() != null ? response.body().string() : null;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tvGetInformation.setText(content);
+                        }
+                    });
+                }
+            }
+        });
     }
 
     //采用线程池的异步处理
@@ -63,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.i(TAG, "Fail to get information!");
+                Log.i(TAG, "Get: Fail to get information!");
                 e.printStackTrace();
             }
 
